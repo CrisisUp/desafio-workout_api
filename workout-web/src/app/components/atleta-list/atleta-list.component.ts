@@ -26,6 +26,7 @@ export class AtletaListComponent implements OnInit {
     this.loading.set(true);
     try {
       await this.atletaService.listar();
+      console.log('Lista atualizada:', this.atletaService.listaAtletas());
     } finally {
       this.loading.set(false);
     }

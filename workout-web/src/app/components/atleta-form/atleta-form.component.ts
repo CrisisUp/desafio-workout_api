@@ -17,6 +17,7 @@ export class AtletaFormComponent {
   public router = inject(Router);
 
   errorMessage = signal('');
+  loading = signal(false);
 
   form = this.fb.group({
     nome: ['', [Validators.required, Validators.maxLength(50)]],
@@ -31,17 +32,26 @@ export class AtletaFormComponent {
 
   async onSubmit() {
     if (this.form.valid) {
+      this.loading.set(true); // Ativa o estado de carregamento
+      this.errorMessage.set('');
       try {
-        // Chamaremos um novo método 'criar' no serviço
+        // Envia o POST para o FastAPI
         await this.atletaService.criar(this.form.value);
-        this.router.navigate(['/']); // Volta para a lista se der certo
+        this.router.navigate(['/']);
       } catch (error: any) {
+        // Tratamento do erro 303 que configuramos no Backend
         if (error.status === 303) {
           this.errorMessage.set('Já existe um atleta cadastrado com este CPF.');
         } else {
-          this.errorMessage.set('Erro ao cadastrar atleta. Verifique os dados.');
+          this.errorMessage.set('Erro ao conectar com o servidor Postgres 16.');
         }
+      } finally {
+        this.loading.set(false); // Desativa o carregamento
       }
     }
+  }
+
+  voltar() {
+    this.router.navigate(['/']);
   }
 }

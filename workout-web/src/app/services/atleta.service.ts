@@ -23,8 +23,8 @@ export class AtletaService {
       const response = await firstValueFrom(this.http.get<any>(this.API_URL, { params }));
 
       // Atualiza os dados e os metadados da paginação
-      this.listaAtletas.set(response.items);
-      this.totalPaginas.set(Math.ceil(response.total / response.size));
+      this.listaAtletas.set(response.items || []);
+      this.totalPaginas.set(response.pages);
       this.paginaAtual.set(response.page);
 
       return response;
