@@ -1,0 +1,43 @@
+<div class="container">
+  <header>
+    <h1>🏋️‍♂️ Workout Dashboard</h1>
+    <p>Monitoramento de Performance em Tempo Real</p>
+  </header>
+
+  @if (loading()) {
+  <div class="loader">Carregando atletas...</div>
+  } @else {
+  <div class="grid">
+    @for (atleta of atletas(); track atleta.nome) {
+    <div class="card">
+      <div class="card-header">
+        <h3>{{ atleta.nome }}</h3>
+        <span class="badge">{{ atleta.categoria.nome }}</span>
+      </div>
+      <div class="card-body">
+        <p><strong>📍 CT:</strong> {{ atleta.centro_treinamento.nome }}</p>
+      </div>
+    </div>
+    <div class="pagination-controls">
+      <button [disabled]="atletaService.paginaAtual() === 1" (click)="mudarPagina(atletaService.paginaAtual() - 1)">
+        Anterior
+      </button>
+
+      <span>Página {{ atletaService.paginaAtual() }} de {{ atletaService.totalPaginas() }}</span>
+
+      <button [disabled]="atletaService.paginaAtual() === atletaService.totalPaginas()"
+        (click)="mudarPagina(atletaService.paginaAtual() + 1)">
+        Próxima
+      </button>
+    </div>
+
+    } @empty {
+    <p>Nenhum atleta encontrado no banco Postgres 16.</p>
+    }
+  </div>
+  }
+</div>
+
+<button (click)="router.navigate(['/novo-atleta'])" class="btn-primary">
+  + Adicionar Atleta
+</button>

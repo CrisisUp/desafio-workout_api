@@ -1,0 +1,21 @@
+<div class="container">
+  <button (click)="router.navigate(['/'])" class="btn-back">← Voltar</button>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2>Novo Atleta</h2>
+
+    @if (errorMessage()) {
+      <div class="error-banner">{{ errorMessage() }}</div>
+    }
+
+    <input formControlName="nome" placeholder="Nome do Atleta" />
+    <input formControlName="cpf" placeholder="CPF (somente números)" />
+
+    <div class="row">
+      <input type="number" formControlName="idade" placeholder="Idade" />
+      <input type="number" formControlName="peso" placeholder="Peso (kg)" />
+    </div>
+
+    <button type="submit" [disabled]="form.invalid">Salvar Atleta</button>
+  </form>
+</div>

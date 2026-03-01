@@ -1,15 +1,16 @@
 from datetime import datetime
 from uuid import uuid4
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, status, Query
 from pydantic import UUID4
 
-from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate
+from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate, AtletaCustomOut
 from workout_api.atleta.models import AtletaModel
 from workout_api.categorias.models import CategoriaModel
 from workout_api.centro_treinamento.models import CentroTreinamentoModel
-
+from fastapi_pagination import Page, paginate
 from workout_api.contrib.dependencies import DatabaseDependency
 from sqlalchemy.future import select
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter()
 
@@ -54,6 +55,13 @@ async def post(
         
         db_session.add(atleta_model)
         await db_session.commit()
+        
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_303_SEE_OTHER, 
+            detail=f'Já existe um atleta cadastrado com o cpf: {atleta_in.cpf}'
+        )
+    
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
@@ -67,12 +75,30 @@ async def post(
     '/', 
     summary='Consultar todos os Atletas',
     status_code=status.HTTP_200_OK,
-    response_model=list[AtletaOut],
+    response_model=Page[AtletaCustomOut],
 )
-async def query(db_session: DatabaseDependency) -> list[AtletaOut]:
-    atletas: list[AtletaOut] = (await db_session.execute(select(AtletaModel))).scalars().all()
+async def query(
+    db_session: DatabaseDependency,
+    nome: str = Query(None), # REQUISITO DIO
+    cpf: str = Query(None)   # REQUISITO DIO
+) -> Page[AtletaCustomOut]:
     
-    return [AtletaOut.model_validate(atleta) for atleta in atletas]
+    # Criamos a query base
+    query_stmt = select(AtletaModel)
+
+    # REQUISITO DIO: Filtros dinâmicos
+    if nome:
+        query_stmt = query_stmt.filter(AtletaModel.nome.ilike(f"%{nome}%"))
+    if cpf:
+        query_stmt = query_stmt.filter(AtletaModel.cpf == cpf)
+
+    atletas = (await db_session.execute(query_stmt)).scalars().all()
+    
+    # Criamos a lista de objetos validados
+    atletas_response = [AtletaCustomOut.model_validate(atleta) for atleta in atletas]
+    
+    # A função paginate cuida automaticamente dos parâmetros size e page
+    return paginate(atletas_response)
 
 
 @router.get(

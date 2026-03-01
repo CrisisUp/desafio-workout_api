@@ -1,83 +1,75 @@
-# FastAPI
-### Quem é o FastAPi?
-Framework FastAPI, alta performance, fácil de aprender, fácil de codar, pronto para produção.
-FastAPI é um moderno e rápido (alta performance) framework web para construção de APIs com Python 3.6 ou superior, baseado nos type hints padrões do Python.
+# 🏋️‍♂️ WorkoutAPI - Competição de Crossfit (High Performance)
 
-### Async
-Código assíncrono apenas significa que a linguagem tem um jeito de dizer para o computador / programa que em certo ponto, ele terá que esperar por algo para finalizar em outro lugar
+* **Quem é o FastAPI?**
+  
+  Framework de alta performance, fácil de aprender e pronto para produção. Baseado em type hints do Python, ele permite uma construção rápida e segura.
 
-# Projeto
-## WorkoutAPI
+* **Async & Performance**
 
-Esta é uma API de competição de crossfit chamada WorkoutAPI (isso mesmo rs, eu acabei unificando duas coisas que gosto: codar e treinar). É uma API pequena, devido a ser um projeto mais hands-on e simplificado nós desenvolveremos uma API de poucas tabelas, mas com o necessário para você aprender como utilizar o FastAPI.
+  Código assíncrono significa que o programa pode esperar por operações de I/O (como banco de dados) sem travar a execução. No meu ambiente, utilizei o Python 3.14 no Apple Mac mini M4, extraindo o máximo de vazão de rede e processamento.
 
-## Modelagem de entidade e relacionamento - MER
-![MER](/mer.jpg "Modelagem de entidade e relacionamento")
+## 🛠️ Stack da API (Modernizada)
 
-## Stack da API
+Diferente da versão original (Python 3.11/Postgres 11), esta implementação utiliza:
 
-A API foi desenvolvida utilizando o `fastapi` (async), junto das seguintes libs: `alembic`, `SQLAlchemy`, `pydantic`. Para salvar os dados está sendo utilizando o `postgres`, por meio do `docker`.
+* **Python 3.14:** Versão de vanguarda para testes de performance.
 
-## Execução da API
+* **PostgreSQL 16:** Otimizado para arquitetura ARM64 (M4) via Docker.
 
-Para executar o projeto, utilizei a [pyenv](https://github.com/pyenv/pyenv), com a versão 3.11.4 do `python` para o ambiente virtual.
+* **FastAPI + Pydantic v2:** Serialização de dados até 20x mais rápida.
 
-Caso opte por usar pyenv, após instalar, execute:
+* **SQLAlchemy 2.0 + asyncpg:** Driver assíncrono de alta performance.
 
-```bash
-pyenv virtualenv 3.11.4 workoutapi
-pyenv activate workoutapi
+* **Índices de Banco:** Implementação de índices B-Tree nos campos nome e cpf.
+
+* **📊 Modelagem de Entidade e Relacionamento - MER**
+
+## 🚀 Como Executar (Ambiente M4)
+
+### 1. Ambiente Virtual
+
+Em vez do pyenv, utilizamos o venv nativo para garantir compatibilidade com o Python 3.14:
+
+```Bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
-Para subir o banco de dados, caso não tenha o [docker-compose](https://docs.docker.com/compose/install/linux/) instalado, faça a instalação e logo em seguida, execute:
 
-```bash
+### 2. Infraestrutura (Docker)
+
+Para subir o banco de dados Postgres 16:
+
+```Bash
 make run-docker
 ```
-Para criar uma migration nova, execute:
 
-```bash
-make create-migrations d="nome_da_migration"
-```
+### 3. Banco de Dados (Alembic)
 
-Para criar o banco de dados, execute:
+Para criar as tabelas e índices:
 
-```bash
+```Bash
 make run-migrations
 ```
 
-## API
+### 4. Execução
 
-Para subir a API, execute:
-```bash
+Para subir a API:
+
+```Bash
 make run
 ```
-e acesse: http://127.0.0.1:8000/docs
 
-# Desafio Final
-    - adicionar query parameters nos endpoints
-        - atleta
-            - nome
-            - cpf
-    - customizar response de retorno de endpoints
-        - get all
-            - atleta
-                - nome
-                - centro_treinamento
-                - categoria
-    - Manipular exceção de integridade dos dados em cada módulo/tabela
-        - sqlalchemy.exc.IntegrityError e devolver a seguinte mensagem: “Já existe um atleta cadastrado com o cpf: x”
-        - status_code: 303
-    - Adicionar paginação utilizando a lib: fastapi-pagination
-        - limit e offset
-# Referências
+Acesse: <http://127.0.0.1:8000/docs>
 
-FastAPI: https://fastapi.tiangolo.com/
+## ✅ Desafios Implementados (Requisitos DIO)
 
-Pydantic: https://docs.pydantic.dev/latest/
+[`x`] Query Parameters: Filtros por nome (ilike) e cpf.
 
-SQLAlchemy: https://docs.sqlalchemy.org/en/20/
+[`x`] Custom Response: GET de atletas retorna apenas Nome, CT e Categoria.
 
-Alembic: https://alembic.sqlalchemy.org/en/latest/
+[`x`] Integrity Control: Tratamento de IntegrityError com Status 303 para CPFs duplicados.
 
-Fastapi-pagination: https://uriyyo-fastapi-pagination.netlify.app/
+[`x`] Paginação: Implementação de fastapi-pagination com suporte a Limit/Offset.
+
+Desenvolvido por `Cristiano` - Estudante de Redes de Computadores no SENAI São Caetano.
